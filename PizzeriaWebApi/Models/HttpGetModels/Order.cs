@@ -18,7 +18,7 @@ namespace Models.HttpGetModels
         public double TotalPrice { get; set; }
         public string Status { get; set; }
 
-        public static Order ConvertFromDbOrder(Models.EntityModels.Order Order)
+        /*public static Order ConvertFromDbOrder(Models.EntityModels.Order Order)
         {
             Order order = new Order()
             {
@@ -69,6 +69,6 @@ namespace Models.HttpGetModels
                 TotalPrice = Convert.ToDouble(item.TotalPrice),
                 Status = item.OrderStatus.Name
             }).ToList();
-        }
+        }*/
     }
 }

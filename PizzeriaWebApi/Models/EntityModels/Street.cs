@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Models.EntityModels
 {
-    [Table("OrderStatus")]
-    public class OrderStatus
+    [Table("Street")]
+    public class Street
     {
         [Required]
         [Key]
@@ -19,11 +19,15 @@ namespace Models.EntityModels
         public bool IsDeleted { get; set; }
 
         [Required]
-        [InverseProperty("OrderStatus")]
-        public ICollection<Order> Orders { get; set; }
+        [InverseProperty("Street")]
+        public ICollection<DeliveryAddress> DeliveryAddresses {get;set;}
 
         [Required]
-        [InverseProperty("OrderStatus")]
-        public ICollection<OrderHistory> OrderHistories { get; set; }
+        [InverseProperty("Street")]
+        public ICollection<Building> Buildings { get; set; }
+
+        [Required]
+        [InverseProperty("City")]
+        public ICollection<CityHasStreet> Cities { get; set; }
     }
 }

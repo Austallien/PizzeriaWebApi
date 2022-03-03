@@ -5,28 +5,31 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Models.EntityModels
 {
-    [Table("Client")]
-    public class Client
+    [Table("Delivery")]
+    public class Delivery
     {
         [Required]
         [Key]
         public int Id { get; set; }
 
         [Required]
+        public decimal Price { get; set; }
+
+        [Required]
         public bool IsDeleted { get; set; }
 
         [Required]
-        public int IdUser { get; set; }
+        public int IdOrder { get; set;}
 
         [Required]
-        [ForeignKey("IdUser")]
-        public User User { get; set; }
+        [ForeignKey("IdOrder")]
+        public Order Order { get; set; }
 
         [Required]
-        public int IdDiscount { get; set; }
+        public int IdDeliveryAddress { get; set; }
 
         [Required]
-        [ForeignKey("IdDiscount")]
-        public Discount Discount { get; set; }
+        [ForeignKey("IdDeliveryAddress")]
+        public DeliveryAddress DeliveryAddress{ get; set; }
     }
 }

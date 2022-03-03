@@ -8,11 +8,6 @@ namespace Models.EntityModels
     [Table("User")]
     public class User
     {
-        public User()
-        {
-
-        }
-
         [Key]
         public int Id { get; set; }
 
@@ -28,9 +23,6 @@ namespace Models.EntityModels
         public string PhoneNumber { get; set; }
 
         [Required]
-        public int IdRole { get; set; }
-
-        [Required]
         public string Login { get; set; }
 
         [Required]
@@ -39,7 +31,23 @@ namespace Models.EntityModels
         [Required]
         public bool IsDeleted { get; set; }
 
+        [Required]
+        public int IdRole { get; set; }
+
+        [Required]
+        [ForeignKey("IdRole")]
+        public Role Role { get; set; }
+
+        [Required]
         [InverseProperty("User")]
-        public ICollection<Client> Client { get; set; }
+        public ICollection<Client> Clients { get; set; }
+
+        [Required]
+        [InverseProperty("User")]
+        public ICollection<Order> Orders { get; set; }
+
+        [Required]
+        [InverseProperty("Staff")]
+        public ICollection<Staff> Staff { get; set; }
     }
 }

@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Models.EntityModels
 {
-    [Table("OrderStatus")]
-    public class OrderStatus
+    [Table("QuantityMeasuremenetUnit")]
+    public class QuantityMeasurementUnit
     {
         [Required]
         [Key]
@@ -19,11 +19,7 @@ namespace Models.EntityModels
         public bool IsDeleted { get; set; }
 
         [Required]
-        [InverseProperty("OrderStatus")]
-        public ICollection<Order> Orders { get; set; }
-
-        [Required]
-        [InverseProperty("OrderStatus")]
-        public ICollection<OrderHistory> OrderHistories { get; set; }
+        [InverseProperty("QuantityMeasurementUnit")]
+        public ICollection<ProductQuantity> ProductQuantities { get; set; }
     }
 }
