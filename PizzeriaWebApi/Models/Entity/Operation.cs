@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
-    [Table("Ingridient")]
-    public class Ingridient
+    [Table("Operation")]
+    public class Operation
     {
         [Required]
         [Key]
@@ -19,7 +19,7 @@ namespace Models.EntityModels
         public bool IsDeleted { get; set; }
 
         [Required]
-        [InverseProperty("Product")]
-        public ICollection<Product> Products { get; set; }
+        [InverseProperty("Operation")]
+        public ICollection<OrderHistory> OrderHistories { get; set; }
     }
 }

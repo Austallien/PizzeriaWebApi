@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
     [Table("Role")]
     public class Role
@@ -20,6 +20,6 @@ namespace Models.EntityModels
 
         [Required]
         [InverseProperty("Role")]
-        public ICollection<Role> Roles { get; set; }
+        public ICollection<User> Roles { get; set; }
     }
 }

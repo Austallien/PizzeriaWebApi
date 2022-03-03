@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
     [Table("Order")]
     public class Order
@@ -63,11 +63,11 @@ namespace Models.EntityModels
         public ICollection<OrderHistory> OrderHistory { get; set; }
 
         [Required]
-        [InverseProperty("OrderIncludeProductVariety")]
+        [InverseProperty("Order")]
         public ICollection<OrderIncludeProductVariety> OrderIncludeProductVariety { get; set; }
 
         [Required]
-        [InverseProperty("Delivery")]
+        [InverseProperty("Order")]
         public ICollection<Delivery> Delivery { get; set; }
     }
 }

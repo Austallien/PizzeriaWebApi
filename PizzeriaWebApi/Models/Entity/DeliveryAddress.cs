@@ -3,13 +3,29 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
-    [Table("CityHasStreet")]
-    public class CityHasStreet
+    [Table("DeliveryAddress")]
+    public class DeliveryAddress
     {
         [Required]
         [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public string Number { get; set; }
+
+        [Required]
+        public bool IsDeleted { get; set; }
+
+        [Required]
+        public int IdCountry { get; set; }
+
+        [Required]
+        [ForeignKey("IdCountry")]
+        public Country Country { get; set; }
+
+        [Required]
         public int IdCity { get; set; }
 
         [Required]
@@ -17,7 +33,6 @@ namespace Models.EntityModels
         public City City { get; set; }
 
         [Required]
-        [Key]
         public int IdStreet { get; set; }
 
         [Required]

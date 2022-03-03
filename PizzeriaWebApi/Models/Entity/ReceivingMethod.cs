@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
-    [Table("QuantityMeasuremenetUnit")]
-    public class QuantityMeasurementUnit
-    {
+    [Table("ReceivingMethod")]
+    public class ReceivingMethod
+    { 
         [Required]
         [Key]
         public int Id { get; set; }
@@ -19,7 +19,7 @@ namespace Models.EntityModels
         public bool IsDeleted { get; set; }
 
         [Required]
-        [InverseProperty("QuantityMeasurementUnit")]
-        public ICollection<ProductQuantity> ProductQuantities { get; set; }
+        [InverseProperty("ReceivingMethod")]
+        public ICollection<Order> Orders { get; set; }
     }
 }

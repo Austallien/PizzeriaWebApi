@@ -13,7 +13,7 @@ namespace Models.HttpGetModels
         public decimal TotalOrderPrice { get; set; }
         public decimal Discount { get; set; }
 
-        public static Client ConvertFromEntityUser(Models.EntityModels.User User)
+        public static Client ConvertFromEntityUser(Models.Entity.User User)
         {
             return new Client
             {

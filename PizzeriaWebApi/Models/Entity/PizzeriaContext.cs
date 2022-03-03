@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
     public class PizzeriaContext : DbContext
     {
@@ -20,6 +20,14 @@ namespace Models.EntityModels
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<CityHasStreet>()
+                .HasKey("IdCity", "IdStreet");
+
+            builder.Entity<OrderIncludeProductVariety>()
+                .HasKey("IdOrder", "IdProductVariety");
+
+            builder.Entity<ProductIncludeIngridient>()
+                .HasKey("IdProduct", "IdIngridient");
             /*builder.Entity<OrderStatus>()
                 .ToTable("Order").
                 .HasMany(e => e.Orders);*/

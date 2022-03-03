@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
-    [Table("Staff")]
-    public class Staff
+    [Table("Client")]
+    public class Client
     {
         [Required]
         [Key]
@@ -23,10 +23,10 @@ namespace Models.EntityModels
         public User User { get; set; }
 
         [Required]
-        public int IdBuilding { get; set; }
+        public int IdDiscount { get; set; }
 
         [Required]
-        [ForeignKey("IdBuilding")]
-        public Building Building { get; set; }
+        [ForeignKey("IdDiscount")]
+        public Discount Discount { get; set; }
     }
 }

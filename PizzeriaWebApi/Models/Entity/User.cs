@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
     [Table("User")]
     public class User
@@ -47,7 +47,7 @@ namespace Models.EntityModels
         public ICollection<Order> Orders { get; set; }
 
         [Required]
-        [InverseProperty("Staff")]
+        [InverseProperty("User")]
         public ICollection<Staff> Staff { get; set; }
     }
 }

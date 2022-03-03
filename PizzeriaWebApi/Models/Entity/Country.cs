@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
-    [Table("City")]
-    public class City
+    [Table("Country")]
+    public class Country
     {
         [Required]
         [Key]
@@ -19,22 +19,15 @@ namespace Models.EntityModels
         public bool IsDeleted { get; set; }
 
         [Required]
-        public int IdCountry { get; set; }
-
-        [Required]
-        [ForeignKey("IdCountry")]
-        public Country Country { get; set; }
-
-        [Required]
-        [InverseProperty("City")]
+        [InverseProperty("Country")]
         public ICollection<DeliveryAddress> DeliveryAddresses { get; set; }
 
         [Required]
-        [InverseProperty("City")]
+        [InverseProperty("Country")]
         public ICollection<Building> Buildings { get; set; }
 
         [Required]
-        [InverseProperty("Street")]
-        public ICollection<CityHasStreet> Streets { get; set; }
+        [InverseProperty("Country")]
+        public ICollection<City> Cities { get; set; }
     }
 }

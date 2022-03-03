@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
     [Table("OrderIncludeProductVariety")]
     public class OrderIncludeProductVariety
     {
         [Required]
-        [Key]
         public int IdOrder { get; set; }
 
         [Required]
@@ -17,7 +16,6 @@ namespace Models.EntityModels
         public Order Order { get; set; }
 
         [Required]
-        [Key]
         public int IdProductVariety { get; set; }
         
         [Required]

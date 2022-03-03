@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.EntityModels
+namespace Models.Entity
 {
     [Table("Street")]
     public class Street
@@ -27,7 +27,7 @@ namespace Models.EntityModels
         public ICollection<Building> Buildings { get; set; }
 
         [Required]
-        [InverseProperty("City")]
-        public ICollection<CityHasStreet> Cities { get; set; }
+        [InverseProperty("Street")]
+        public ICollection<CityHasStreet> CitiesHasStreet { get; set; }
     }
 }
