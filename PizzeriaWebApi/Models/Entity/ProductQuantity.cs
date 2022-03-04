@@ -16,6 +16,7 @@ namespace Models.Entity
         public string Name { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(16, 2)")]
         public decimal Quantity { get; set; }
 
         [Required]

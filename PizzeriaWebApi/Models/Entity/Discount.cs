@@ -13,9 +13,11 @@ namespace Models.Entity
         public int Id { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(3, 2)")]
         public decimal Value { get; set; }
         
         [Required]
+        [Column(TypeName = "decimal(7, 2)")]
         public decimal Threshold { get; set; }
 
         [Required]

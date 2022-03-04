@@ -13,6 +13,7 @@ namespace Models.Entity
         public int Id { get; set; }
 
         [Required]
+        [Column(TypeName ="decimal(16, 2)")]
         public decimal Price { get; set; }
 
         [Required]

@@ -25,6 +25,7 @@ namespace Models.Entity
         public TimeSpan ReceivingTime { get; set; }
 
         [Required]
+        [Column(TypeName = "decimal(16, 2)")]
         public decimal TotalPrice { get; set; }
 
         [Required]
