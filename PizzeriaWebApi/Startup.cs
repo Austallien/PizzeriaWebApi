@@ -5,7 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Models.Entity;
+using Models;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+using Microsoft.AspNetCore.Identity;
 
 namespace PizzeriaWebApi
 {
@@ -21,12 +26,44 @@ namespace PizzeriaWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<PizzeriaContext>(opt =>
-            opt.UseSqlServer("data source=DESKTOP-QQO9PIU\\SQLEXPRESS;initial catalog=Pizzeria;integrated security=True;"));
+            services.AddDbContext<Context>(options =>
+                options.UseSqlServer("data source=DESKTOP-QQO9PIU\\SQLEXPRESS;initial catalog=Pizzeria;integrated security=True;")
+            );
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = AuthOptions.ISSUER,
+
+                        ValidateAudience = true,
+                        ValidAudience = AuthOptions.AUDIENCE,
+
+                        ValidateLifetime = true,
+
+                        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                        ValidateIssuerSigningKey = true
+                    };
+                });
+            services.AddAuthorization();
+
+
+
+           /* services.AddIdentity<Models.View.User, IdentityRole>()
+              .AddEntityFrameworkStores<Context>();*/
+
+
 
             services.AddControllers();
+            services.AddControllersWithViews();
 
-            services.AddSwaggerGen(c=>c.SwaggerDoc("v1", new OpenApiInfo
+
+
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "PizzeriaAPI",
                 Version = "v1"
@@ -45,9 +82,8 @@ namespace PizzeriaWebApi
             }
 
             //app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

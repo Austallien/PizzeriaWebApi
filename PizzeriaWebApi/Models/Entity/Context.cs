@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Models.Entity
 {
-    public class PizzeriaContext : DbContext
+    public class Context : DbContext
     {
-        public PizzeriaContext(DbContextOptions<PizzeriaContext> options)
+        public Context(DbContextOptions<Context> options)
             : base(options)
         {
 
