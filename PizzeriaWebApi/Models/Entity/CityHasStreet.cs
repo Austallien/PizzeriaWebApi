@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.Entity
+namespace Api.Models.Entity
 {
     [Table("CityHasStreet")]
     public class CityHasStreet

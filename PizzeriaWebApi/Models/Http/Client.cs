@@ -1,25 +1,27 @@
 using System;
 
-namespace Models.HttpGetModels
+namespace Api.Models.Http
 {
-    public class User
+    public class Client
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
+        public string Role{ get; set; }
         public string Login { get; set; }
-        public string Role { get; set; }
+        public decimal TotalOrderPrice { get; set; }
+        public decimal Discount { get; set; }
 
-        public static User GetInstance(Models.Entity.User User)
+        public static Client ConvertFromEntityUser(Models.Entity.User User)
         {
-            return new User
+            return new Client
             {
                 Id = User.Id,
                 FirstName = User.FirstName,
                 MiddleName = User.MiddleName,
                 LastName = User.LastName,
-                Role = User.IdRole + "",
+                Role = User.IdRole+"",
                 Login = User.Login
             };
         }

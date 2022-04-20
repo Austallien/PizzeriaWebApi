@@ -25,7 +25,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": "true",
-      "applicationUrl": "http://192.168.0.14:5000;https://192.168.0.14:5001"
+      "applicationUrl": "http://192.168.0.15:5000;https://192.168.0.15:5001"
     }
   }
 }

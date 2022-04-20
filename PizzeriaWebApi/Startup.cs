@@ -4,15 +4,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Models.Entity;
-using Models;
+
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 using Microsoft.AspNetCore.Identity;
 
-namespace PizzeriaWebApi
+namespace Api
 {
     public class Startup
     {
@@ -26,7 +25,7 @@ namespace PizzeriaWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<Context>(options =>
+            services.AddDbContext<Api.Models.Entity.Context>(options =>
                 options.UseSqlServer("data source=DESKTOP-QQO9PIU\\SQLEXPRESS;initial catalog=Pizzeria;integrated security=True;")
             );
 
@@ -38,14 +37,14 @@ namespace PizzeriaWebApi
                     options.TokenValidationParameters = new TokenValidationParameters()
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = AuthOptions.ISSUER,
+                        ValidIssuer = Api.Models.AuthOptions.ISSUER,
 
                         ValidateAudience = true,
-                        ValidAudience = AuthOptions.AUDIENCE,
+                        ValidAudience = Api.Models.AuthOptions.AUDIENCE,
 
                         ValidateLifetime = true,
 
-                        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                        IssuerSigningKey = Api.Models.AuthOptions.GetSymmetricSecurityKey(),
                         ValidateIssuerSigningKey = true
                     };
                 });

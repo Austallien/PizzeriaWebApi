@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Models.Entity
+namespace Api.Models.Entity
 {
     [Table("Product")]
     public class Product
@@ -14,6 +14,10 @@ namespace Models.Entity
 
         [Required]
         public string Name { get; set; }
+
+        [Required]
+        [StringLength(128)]
+        public string ImagePath { get; set; }
 
         [Required]
         public bool IsDeleted { get; set; }

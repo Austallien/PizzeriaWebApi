@@ -3,39 +3,36 @@ using System.Text.Json;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
-namespace Models
+namespace Api.Models
 {
     public class TokenManager
     {
-        public struct TokenGroup
+        readonly static string JWTPattern = "{{\"accessToken\":\"{0}\"," + "\"refreshToken\":\"{1}\"}}";
+        readonly static string accessJWTPattern = "{{\"accessToken\":\"{0}\"}}";
+
+        /// <summary>
+        /// Generates pair of access and refresh JWTs
+        /// </summary>
+        /// <param name="Identity">User identity</param>
+        /// <returns>JSON string which contains JWTs - accessToken & refreshToken</returns>
+        public static string GenerateJWTs(ClaimsIdentity Identity)
         {
-            public string AccessJwtToken;
-            public string RefreshJwtToken;
+            var accessToken = GenerateAccessToken(Identity);
+            var refreshToken = GenerateRefreshToken(Identity);
+            return String.Format(JWTPattern, accessToken, refreshToken).ToString();
         }
 
-        public static TokenGroup GenerateTokenGroup(ClaimsIdentity Identity)
+        /// <summary>
+        /// Generates new access JWT if the old one is outdated
+        /// </summary>
+        /// <param name="Identity">User identity</param>
+        /// <returns>JSON string which contains JWT - accessToken</returns>
+        public static string GenerateAccessJWT(ClaimsIdentity Identity)
         {
-            return new TokenGroup
-            {
-                AccessJwtToken = GenerateAccessToken(Identity),
-                RefreshJwtToken = GenerateRefreshToken(Identity)
-            };
-        }
-
-        public static bool ValidateToken(TokenGroup TokenGroup)
-        {
-            /*bool isAccessTokenValidated = true;
-            bool isRefreshTokenValidated = true;
-
-            JwtSecurityToken accessToken = new JwtSecurityTokenHandler().ReadJwtToken(TokenGroup.AccessJwtToken);
-            JwtSecurityToken refreshToken = new JwtSecurityTokenHandler().ReadJwtToken(TokenGroup.RefreshJwtToken);
-
-            if (accessToken.ValidTo.Ticks > DateTime.UtcNow.Ticks)
-                isAccessTokenValidated = false;*/
-
-            return false;
-
+            string accessToken = GenerateAccessToken(Identity);
+            return String.Format(accessJWTPattern, accessToken).ToString();
         }
 
         private static string GenerateAccessToken(ClaimsIdentity Identity)
@@ -47,7 +44,7 @@ namespace Models
                 audience: AuthOptions.AUDIENCE,
                 notBefore: now,
                 claims: Identity.Claims,
-                expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME_IN_MINUTES)),
                 signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
@@ -63,7 +60,7 @@ namespace Models
                 audience: AuthOptions.AUDIENCE,
                 notBefore: now,
                 claims: Identity.Claims,
-                expires: now.Add(TimeSpan.FromDays(365)),
+                expires: now.Add(TimeSpan.FromDays(2)),
                 signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 

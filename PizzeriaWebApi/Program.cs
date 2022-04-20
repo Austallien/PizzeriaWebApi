@@ -20,7 +20,7 @@ namespace PizzeriaWebApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Api.Startup>();
                 });
     }
 }

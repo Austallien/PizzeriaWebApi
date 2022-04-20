@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Entity
+namespace Api.Models.Entity
 {
     public class Context : DbContext
     {

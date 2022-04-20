@@ -3,23 +3,42 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Models.Entity;
-using Models;
+using Api.Models;
+using Microsoft.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
 
-namespace WebApplication1.Controllers
+namespace Api.Controllers
 {
     [Route("account")]
     [Authorize]
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly Context _context;
+        private readonly Models.Entity.Context _context;
 
-        public AccountController(Context context)
+        public AccountController(Models.Entity.Context context)
         {
             _context = context;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("asd:login={login}&password={password}")]
+        public IActionResult asd(string login, string password)
+        {
+            Models.Entity.User user = _context.User.FirstOrDefault(item => item.Login.Equals(login));
+          /* foreach(var item in _context.User)
+            {
+                item.Password = PasswordCryptograph.Encrypt(item.Password);
+            }
+            _context.SaveChanges();*/
+            string asd = PasswordCryptograph.Encrypt(user.Password);
+            return Content(password + "\n" 
+                + asd + "\n" 
+                + user.Password + "\n"
+                + PasswordCryptograph.Validate(password, user.Password));
+
+            //return PasswordCryptograph.Validate(password, user.Password);
         }
 
         /// <summary>
@@ -27,62 +46,42 @@ namespace WebApplication1.Controllers
         /// </summary>
         /// <param name="Login">User login</param>
         /// <param name="Password">User password</param>
-        /// <returns>New pair of access and refresh JWT with user id in JSON scheme</returns>
+        /// <returns>Access and refresh JWTs</returns>
         [AllowAnonymous]
         [HttpPost("authenticate")]
         async public Task<ActionResult<string>> Authenticate(string Login, string Password)
         {
-            try
+            string result = await Task.Run(() =>
             {
-                string result = await Task.Run(() =>
-                {
-                    var identity = GetIdentity(Login, Password);
-                    if (identity == null)
-                        return "Invalid username or password";
+                var identity = GetIdentity(Login, Password);
+                if (identity == null)
+                    return "Invalid username or password";
 
-                    var user = _context.User.FirstOrDefault(item => item.Login.Equals(Login) && item.Password.Equals(Password));
+                var tokens = TokenManager.GenerateJWTs(identity);
 
-                    var tokens = TokenManager.GenerateTokenGroup(identity);
-                    var accessJwtToken = tokens.AccessJwtToken;
-                    var refreshJwtToken = tokens.RefreshJwtToken;
-                    var result = "{\"accessJwtToken\":\"" + accessJwtToken + "\",\"refreshJwtToken\":\"" + refreshJwtToken + "\",\"userId\":\"" + user.Id + "\"}";
+                return tokens;
+            });
 
-                    return result;
-                });
-
-                if (result.Length > "{\"accessJwtToken\":\"\",\"refreshJwtToken\":\"\",\"userId\":\"\"}".Length)
-                    return result;
-                else throw new System.Exception();
-            }
-            catch
-            {
-                return BadRequest("InternalServerError");
-            }
+            return result;
         }
 
         /// <summary>
-        /// 
+        /// Authorizes user by login which included in JWT
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Authenticated user data</returns>
         [Authorize]
         [HttpPost("authorize")]
-        async public Task<ActionResult<Models.HttpGetModels.User>> Authorize(int UserId)
+        async public Task<ActionResult<Models.Http.User>> Authorize()
         {
-            try
+            Models.Http.User user = await Task.Run(() =>
             {
-                Models.HttpGetModels.User user = await Task.Run(() =>
-                {
-                    Models.HttpGetModels.User user = (from item in _context.User where item.Id == UserId select Models.HttpGetModels.User.GetInstance(item)).FirstOrDefault();
-                    return user;
-                });
-                if(user == null)
-                    return BadRequest("UserNotFound");
+                string login = GetLoginFromJWT();
+                Models.Http.User user = (from item in _context.User where item.Login.Equals(login) select Models.Http.User.GetInstance(item)).FirstOrDefault();
                 return user;
-            }
-            catch
-            {
-                return BadRequest("InternalServerError");
-            }
+            });
+            if (user == null)
+                return BadRequest("UserNotFound");
+            return user;
         }
 
         /// <summary>
@@ -90,34 +89,44 @@ namespace WebApplication1.Controllers
         /// </summary>
         /// <param name="Login">User login</param>
         /// <param name="Password">User password</param>
-        /// <returns>New access JWT in JSON scheme</returns>
+        /// <returns>New access JWT</returns>
         [Authorize]
         [HttpPost("refreshAccessToken")]
-        public IActionResult RefreshAccessToken(string Login, string Password)
+        async public Task<ActionResult<string>> RefreshAccessToken()
         {
-            return BadRequest("NotImplementedMethod");
+            string result = await Task.Run(() =>
+            {
+                var identity = GetIdentityByRefreshJWT();
+
+                string accessToken = TokenManager.GenerateAccessJWT(identity);
+
+                return accessToken;
+            });
+
+            return result;
         }
 
-        [Authorize]
-        [HttpPost("Test")]
-        public string GetTestData()
+        [AllowAnonymous]
+        [HttpPost("register")]
+        async public Task<ActionResult<bool>> Register(string FirstName, string MiddleName, string LastName, string PhoneNumber, string Login, string Password)
         {
-            return "TestDataReceived";
+            await _context.User.AddAsync(new Models.Entity.User()
+            {
+                FirstName = FirstName,
+                MiddleName = MiddleName,
+                LastName = LastName,
+                PhoneNumber = PhoneNumber,
+                Login = Login,
+                Password = PasswordCryptograph.Encrypt(Password)
+            });
+            return true;
         }
-
-        [Authorize]
-        [HttpPost]
-        public IActionResult Asd(TokenManager.TokenGroup TokenGroup)
-        {
-            var result = TokenManager.ValidateToken(TokenGroup);
-            //if(result)
-                return Content("NotImplementedMethod; result = " + result.ToString());
-        }
-
 
         private ClaimsIdentity GetIdentity(string Login, string Password)
         {
-            var user = (from item in _context.User where item.Login.Equals(Login) && item.Password.Equals(Password) select
+            string encryptedPassword = PasswordCryptograph.Encrypt(Password);
+
+            var user = (from item in _context.User where item.Login.Equals(Login) && item.Password.Equals(encryptedPassword) select
                                 new {
                                     Login = item.Login,
                                     Role = item.Role.Name
@@ -137,5 +146,39 @@ namespace WebApplication1.Controllers
 
             return null;
         }  
+
+        private ClaimsIdentity GetIdentityByRefreshJWT()
+        {
+            string login = GetLoginFromJWT();
+            string acasddacessToken = Request.Headers[HeaderNames.Authorization].ToString();
+            var user = (from item in _context.User where item.Login.Equals(login) select
+                            new
+                            {
+                                Login = item.Login,
+                                Role = item.Role.Name
+                            }).FirstOrDefault();
+            if (user != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Login),
+                    new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role)
+                };
+
+                ClaimsIdentity claimsIdentity =
+                    new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+                return claimsIdentity;
+            }
+
+            return null;
+        }
+
+        private string GetLoginFromJWT()
+        {
+            string rawToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+            var actualToken = new JwtSecurityTokenHandler().ReadJwtToken(rawToken);
+            string login = actualToken.Claims.First(item => item.Type.Equals(ClaimsIdentity.DefaultNameClaimType)).Value;
+            return login;
+        }
     }
 }

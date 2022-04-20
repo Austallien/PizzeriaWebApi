@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Models.HttpGetModels
+namespace Api.Models.Http
 {
     public class Order
     {
