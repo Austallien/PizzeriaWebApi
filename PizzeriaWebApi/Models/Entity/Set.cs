@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Api.Models.Entity
 {
-    [Table("QuantityMeasurementUnit")]
-    public class QuantityMeasurementUnit
+    [Table("Set")]
+    public class Set
     {
         [Required]
         [Key]
@@ -19,7 +19,7 @@ namespace Api.Models.Entity
         public bool IsDeleted { get; set; }
 
         [Required]
-        [InverseProperty("QuantityMeasurementUnit")]
-        public ICollection<ProductQuantity> ProductQuantities { get; set; }
+        [InverseProperty("Set")]
+        public ICollection<SetHasProduct> SetHasProduct { get; set; }
     }
 }

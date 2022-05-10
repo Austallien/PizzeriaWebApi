@@ -84,6 +84,13 @@ namespace Api.Controllers
             return user;
         }
 
+        [Authorize]
+        [HttpPost("data")]
+        async public Task<IActionResult> Data()
+        {
+            return Content("NotImplementedMethod");
+        }
+
         /// <summary>
         /// Refreshes access JWT if the refresh token is valid
         /// </summary>

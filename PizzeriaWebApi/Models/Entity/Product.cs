@@ -23,6 +23,13 @@ namespace Api.Models.Entity
         public bool IsDeleted { get; set; }
 
         [Required]
+        public int IdCategory { get; set; }
+
+        [Required]
+        [ForeignKey("IdCategory")]
+        public Category Category { get; set; }
+
+        [Required]
         [InverseProperty("Product")]
         public ICollection<ProductVariety> ProductVarieties { get; set; }
 

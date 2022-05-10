@@ -36,5 +36,9 @@ namespace Api.Models.Entity
         [Required]
         [InverseProperty("ProductVariety")]
         public ICollection<OrderIncludeProductVariety> OrderIncludeProductVariety { get; set; }
+
+        [Required]
+        [InverseProperty("ProductVariety")]
+        public ICollection<SetHasProduct> SetHasProduct { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Api.Models;
 using System.IO;
+using System.Reflection;
 
 namespace Api.Controllers
 {
@@ -23,37 +24,73 @@ namespace Api.Controllers
             _context = context;
         }
 
-        [Authorize]
-        [HttpPost("general")]
-        public async Task<ActionResult<IEnumerable<Models.Http.Product>>>GetGeneralData()
+
+        [AllowAnonymous]
+        [HttpPost("food/general")]
+        public async Task<ActionResult<IEnumerable<Models.Http.Product>>> GetGeneralData()
         {
-            List<Models.Http.Product> products = new List<Models.Http.Product>();
+            List<Models.Http.Product> products = await (from item in _context.Product
+                                                        select new Models.Http.Product()
+                                                        {
+                                                            Id = item.Id,
+                                                            Name = item.Name,
+                                                            Category = item.Category.Name,
+                                                            Image = item.ImagePath,
+                                                            Varieties = (from variety in _context.ProductVariety
+                                                                         where variety.Product.Id == item.Id
+                                                                         select new Models.Http.Variety()
+                                                                         {
+                                                                             Id = variety.Id,
+                                                                             Quantity = (double)variety.ProductQuantity.Quantity,
+                                                                             MeasurementUnit = variety.ProductQuantity.QuantityMeasurementUnit.Name,
+                                                                             Price = (double)variety.Price,
+                                                                             IsDeleted = variety.IsDeleted
+                                                                         }).ToList(),
+                                                            Composition = (from composition in item.ProductIncludeIngridients
+                                                                           select composition.Ingridient.Name).ToList(),
+                                                            IsDeleted = item.IsDeleted
+                                                        }).ToListAsync();
 
-            List<Models.Http.Product> list = await (from item in _context.ProductVariety
-            select new Models.Http.Product()
+            return products;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("image&name={Name}"),HttpPost("image&name={Name}")]
+        public async Task<ActionResult> Image(string Name)
+        {
+            string path = Environment.CurrentDirectory + "\\content\\image\\";
+            string image = Name;
+            string format = Name.Split('.')[1];
+            return PhysicalFile(path + Name, "image/" + format);
+        }
+
+       /* [AllowAnonymous]
+        [HttpPost("food/categories")]
+        public async Task<ActionResult<IEnumerable<Models.Http.Category>>> GetCategoriesData()
+        {
+            List<Models.Http.Category> categories = await (from item in _context.Category select new Models.Http.Category()
             {
-                Id = item.Product.Id,
-                VarietyId = item.Id,
-                Name = item.Product.Name,
-                QuantityName = item.ProductQuantity.Name,
-                QuantityValue = item.ProductQuantity.Quantity,
-                MeasurementQuantityUnit = item.ProductQuantity.QuantityMeasurementUnit.Name,
-                Price = item.Price
+                Id = item.Id,
+                Name = item.Name,
+                Products = (from item in )
             }).ToListAsync();
+        }*/
 
-            await Task.Run(() =>
-            {
-                foreach (var item in _context.ProductVariety)
-                {
-                    string path = Path.Combine(Environment.CurrentDirectory, item.Product.ImagePath);
-                    string type = "application/webp";
-                    PhysicalFileResult result = PhysicalFile(path, type, item.Product.ImagePath.Split('/').Last());
-
-                    list.FirstOrDefault(_item => _item.Id == item.Product.Id).Image = result;
-                }
-            });
-
-            return list;
+        [AllowAnonymous]
+        [HttpPost("food/sets")]
+        public async Task<ActionResult<IEnumerable<Models.Http.Set>>> GetSetData()
+        {
+            List<Models.Http.Set> sets = await (from item in _context.Set
+                                                select new Models.Http.Set()
+                                                {
+                                                    Id = item.Id,
+                                                    Name = item.Name,
+                                                    IsDeleted = item.IsDeleted,
+                                                    Products = (from set in _context.SetHasProduct
+                                                                where set.IdSet == item.Id
+                                                                select set.IdProductVariety).ToList()
+                                                }).ToListAsync();
+            return sets;
         }
 
         [Authorize]

@@ -24,9 +24,12 @@ namespace Api.Models.Entity
         public DbSet<QuantityMeasurementUnit> QuantityMeasurementUnit { get; set; }
         public DbSet<ProductQuantity> ProductQuantity { get; set; }
         public DbSet<Ingridient> Ingridient { get; set; }
+        public DbSet<Category> Category { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<ProductIncludeIngridient> ProductIncludeIngridient { get; set; }
         public DbSet<ProductVariety> ProductVariety { get; set; }
+        public DbSet<Set> Set { get; set; }
+        public DbSet<SetHasProduct> SetHasProduct { get; set; }
         public DbSet<ReceivingMethod> ReceivingMethod { get; set; }
         public DbSet<Operation> Operation { get; set; }
         public DbSet<OrderStatus> OrderStatus { get; set; }
@@ -45,6 +48,9 @@ namespace Api.Models.Entity
 
             builder.Entity<ProductIncludeIngridient>()
                 .HasKey("IdProduct", "IdIngridient");
+
+            builder.Entity<SetHasProduct>()
+                .HasKey("IdSet", "IdProductVariety");
         }
     }
 }

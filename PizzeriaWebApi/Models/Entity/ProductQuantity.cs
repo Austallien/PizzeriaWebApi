@@ -26,7 +26,7 @@ namespace Api.Models.Entity
         public int IdQuantityMeasurementUnit { get; set; }
 
         [Required]
-        [ForeignKey("IdQuantityMeasuremenetUnit")]
+        [ForeignKey("IdQuantityMeasurementUnit")]
         public QuantityMeasurementUnit QuantityMeasurementUnit { get; set; }
 
         [Required]

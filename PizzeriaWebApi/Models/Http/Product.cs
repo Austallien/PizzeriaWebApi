@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Api.Models.Http
@@ -6,12 +7,11 @@ namespace Api.Models.Http
     public class Product
     {
         public int Id { get; set; }
-        public int VarietyId { get; set; }
-        public PhysicalFileResult Image { get; set; }
         public string Name { get; set; }
-        public string QuantityName { get; set; }
-        public decimal QuantityValue { get; set; }
-        public string MeasurementQuantityUnit { get; set; }
-        public decimal Price { get; set; }
+        public string Category { get; set; }
+        public string Image { get; set; }
+        public List<Variety> Varieties { get; set; }
+        public List<string> Composition { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }
