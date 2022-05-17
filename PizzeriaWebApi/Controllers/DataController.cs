@@ -24,12 +24,11 @@ namespace Api.Controllers
             _context = context;
         }
 
-
         [AllowAnonymous]
         [HttpPost("food/general")]
         public async Task<ActionResult<IEnumerable<Models.Http.Product>>> GetGeneralData()
         {
-            List<Models.Http.Product> products = await (from item in _context.Product
+            List<Models.Http.Product> products = await (from item in _context.Product where item.ProductVarieties.Count > 0
                                                         select new Models.Http.Product()
                                                         {
                                                             Id = item.Id,
@@ -52,6 +51,118 @@ namespace Api.Controllers
                                                         }).ToListAsync();
 
             return products;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("address")]
+        public async Task<ActionResult<Models.Http.Geolocation>> GetAddresses()
+        {
+            Models.Http.Geolocation geolocation = new Models.Http.Geolocation()
+            {
+                Countries = await (from country in _context.Country
+                                   select new Models.Http.Geolocation.Country()
+                                   {
+                                       Id = country.Id,
+                                       Name = country.Name,
+                                       Cities = (from city in country.Cities
+                                                 select new Models.Http.Geolocation.City()
+                                                 {
+                                                     Id = city.Id,
+                                                     Name = city.Name,
+                                                     Streets = (from street in city.CityHasStreets
+                                                                select new Models.Http.Geolocation.Street()
+                                                                {
+                                                                    Id = street.Street.Id,
+                                                                    Name = street.Street.Name
+                                                                }).ToList()
+                                                 }).ToList()
+                                   }).ToListAsync()
+            };
+
+
+            return geolocation;
+        }
+
+        [AllowAnonymous]
+        [HttpGet("asd")]
+        public async Task<ActionResult<bool>> asd()
+        {
+            return true;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("location/building")]
+        public async Task<ActionResult<List<Models.Http.Building>>> GetBuildings()
+        {
+            List<Models.Http.Building> list = await (from item in _context.Building
+                                                     select new Models.Http.Building()
+                                                     {
+                                                         Id = item.Id,
+                                                         IdCountry = item.IdCountry,
+                                                         IdCity = item.IdCity,
+                                                         IdStreet = item.IdStreet,
+                                                         Number = item.Number
+                                                     }).ToListAsync();
+
+            return list;
+        }
+
+        [Authorize]
+        [HttpPost("order/place:building={BuildingId}&data={Data}")]
+        public async Task<bool> PlaceOrder(int BuildingId, string Data)
+        {
+            bool result = await Task<bool>.Run(() =>
+            {
+                try
+                {
+                    var data = new
+                    {
+                        A = new List<int>(),
+                        B = new List<int>()
+                    };
+
+                    decimal totalPrice = 0;
+
+                    foreach (string item in Data.Split('_'))
+                    {
+                        int varietyId = Convert.ToInt32(item.Split('+')[0]);
+                        int amount = Convert.ToInt32(item.Split('+')[1]);
+                        data.A.Add(varietyId);
+                        data.B.Add(amount);
+
+                        totalPrice += _context.ProductVariety.FirstOrDefault(item => item.Id == varietyId).Price * amount;
+                    }
+
+                    string login = AccountController.GetLoginFromJWT(Request);
+                    int id = _context.User.FirstOrDefault(item => item.Login.Equals(login)).Id;
+                    double discount = (double)(from item in _context.Client where item.IdUser == id select item.Discount.Value).First();
+
+                    Models.Entity.Order order = new Models.Entity.Order()
+                    {
+                        IdUser = id,
+                        RegistrationDate = DateTime.Now,
+                        RegistrationTime = DateTime.Now.TimeOfDay,
+                        ReceivingDate = DateTime.MinValue,
+                        ReceivingTime = DateTime.MinValue.TimeOfDay,
+                        IdBuilding = BuildingId,
+                        IdReceivingMethod = 1,
+                        TotalPrice = totalPrice,
+                        IdStatus = 1,
+                        IsDeleted = false
+                    };
+
+                    _context.Order.Add(order);
+                    _context.SaveChangesAsync();
+
+                    return true;
+                }
+                catch(Exception ex)
+                {
+                    return false;
+                }
+            });
+
+            return result;
         }
 
         [AllowAnonymous]

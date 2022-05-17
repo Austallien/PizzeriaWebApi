@@ -75,7 +75,7 @@ namespace Api.Controllers
         {
             Models.Http.User user = await Task.Run(() =>
             {
-                string login = GetLoginFromJWT();
+                string login = GetLoginFromJWT(Request);
                 Models.Http.User user = (from item in _context.User where item.Login.Equals(login) select Models.Http.User.GetInstance(item)).FirstOrDefault();
                 return user;
             });
@@ -156,7 +156,7 @@ namespace Api.Controllers
 
         private ClaimsIdentity GetIdentityByRefreshJWT()
         {
-            string login = GetLoginFromJWT();
+            string login = GetLoginFromJWT(Request);
             string acasddacessToken = Request.Headers[HeaderNames.Authorization].ToString();
             var user = (from item in _context.User where item.Login.Equals(login) select
                             new
@@ -180,7 +180,7 @@ namespace Api.Controllers
             return null;
         }
 
-        private string GetLoginFromJWT()
+        public static string GetLoginFromJWT(Microsoft.AspNetCore.Http.HttpRequest Request)
         {
             string rawToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
             var actualToken = new JwtSecurityTokenHandler().ReadJwtToken(rawToken);
