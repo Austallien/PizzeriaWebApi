@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Api.Models.Http
+namespace Api.Models.Http.Send
 {
     public class Order
     {
@@ -12,11 +12,13 @@ namespace Api.Models.Http
         public long RegistrationTime { get; set; }
         public long ReceivingDate { get; set; }
         public long ReceivingTime { get; set; }
-        public string ReceivingMethod { get; set; }
-        public string Address { get; set; }
-        public string DeliveryAddress { get; set; }
+        public List<OrderContentItem> Content { get; set; }
+        public int IdReceivingMethod { get; set; }
+        public int IdBuilding { get; set; }
+        public string Delivery { get; set; }
         public double TotalPrice { get; set; }
-        public string Status { get; set; }
+        public int IdDiscount { get; set; }
+        public int IdStatus { get; set; }
 
         /*public static Order ConvertFromDbOrder(Models.EntityModels.Order Order)
         {

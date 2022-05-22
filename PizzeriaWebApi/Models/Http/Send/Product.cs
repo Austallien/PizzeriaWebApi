@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Api.Models.Http
+namespace Api.Models.Http.Send
 {
     public class Product
     {

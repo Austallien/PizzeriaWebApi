@@ -26,10 +26,10 @@ namespace Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("food/general")]
-        public async Task<ActionResult<IEnumerable<Models.Http.Product>>> GetGeneralData()
+        public async Task<ActionResult<IEnumerable<Models.Http.Send.Product>>> GetGeneralData()
         {
-            List<Models.Http.Product> products = await (from item in _context.Product where item.ProductVarieties.Count > 0
-                                                        select new Models.Http.Product()
+            List<Models.Http.Send.Product> products = await (from item in _context.Product where item.ProductVarieties.Count > 0
+                                                        select new Models.Http.Send.Product()
                                                         {
                                                             Id = item.Id,
                                                             Name = item.Name,
@@ -37,7 +37,7 @@ namespace Api.Controllers
                                                             Image = item.ImagePath,
                                                             Varieties = (from variety in _context.ProductVariety
                                                                          where variety.Product.Id == item.Id
-                                                                         select new Models.Http.Variety()
+                                                                         select new Models.Http.Send.Variety()
                                                                          {
                                                                              Id = variety.Id,
                                                                              Quantity = (double)variety.ProductQuantity.Quantity,
@@ -55,22 +55,22 @@ namespace Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("address")]
-        public async Task<ActionResult<Models.Http.Geolocation>> GetAddresses()
+        public async Task<ActionResult<Models.Http.Send.Geolocation>> GetAddresses()
         {
-            Models.Http.Geolocation geolocation = new Models.Http.Geolocation()
+            Models.Http.Send.Geolocation geolocation = new Models.Http.Send.Geolocation()
             {
                 Countries = await (from country in _context.Country
-                                   select new Models.Http.Geolocation.Country()
+                                   select new Models.Http.Send.Geolocation.Country()
                                    {
                                        Id = country.Id,
                                        Name = country.Name,
                                        Cities = (from city in country.Cities
-                                                 select new Models.Http.Geolocation.City()
+                                                 select new Models.Http.Send.Geolocation.City()
                                                  {
                                                      Id = city.Id,
                                                      Name = city.Name,
                                                      Streets = (from street in city.CityHasStreets
-                                                                select new Models.Http.Geolocation.Street()
+                                                                select new Models.Http.Send.Geolocation.Street()
                                                                 {
                                                                     Id = street.Street.Id,
                                                                     Name = street.Street.Name
@@ -84,18 +84,11 @@ namespace Api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("asd")]
-        public async Task<ActionResult<bool>> asd()
-        {
-            return true;
-        }
-
-        [AllowAnonymous]
         [HttpPost("location/building")]
-        public async Task<ActionResult<List<Models.Http.Building>>> GetBuildings()
+        public async Task<ActionResult<List<Models.Http.Send.Building>>> GetBuildings()
         {
-            List<Models.Http.Building> list = await (from item in _context.Building
-                                                     select new Models.Http.Building()
+            List<Models.Http.Send.Building> list = await (from item in _context.Building
+                                                     select new Models.Http.Send.Building()
                                                      {
                                                          Id = item.Id,
                                                          IdCountry = item.IdCountry,
@@ -105,6 +98,70 @@ namespace Api.Controllers
                                                      }).ToListAsync();
 
             return list;
+        }
+
+        [Authorize]
+        [HttpPost("order/load")]
+        public async Task<ActionResult<List<Object>>> OrderList()
+        {
+            string login = AccountController.GetLoginFromJWT(Request);
+
+            DateTime sTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            List<Models.Http.Send.Receiving> receiving = await (from item in _context.ReceivingMethod
+                                                                select new Models.Http.Send.Receiving()
+                                                                {
+                                                                    Id = item.Id,
+                                                                    Name = item.Name
+                                                                }).ToListAsync();
+
+            List<Models.Http.Send.Discount> discount = await (from item in _context.Discount
+                                                              select new Models.Http.Send.Discount()
+                                                              {
+                                                                  Id = item.Id,
+                                                                  Value = (double)item.Value
+                                                              }).ToListAsync();
+
+            List<Models.Http.Send.Status> status = await (from item in _context.OrderStatus
+                                                          select new Models.Http.Send.Status()
+                                                          {
+                                                              Id = item.Id,
+                                                              Name = item.Name
+                                                          }).ToListAsync();
+
+            List<Models.Http.Send.Order> order = await (from item in _context.Order
+                                                       where item.User.Login.Equals(login)
+                                                       select new Models.Http.Send.Order()
+                                                       {
+                                                           Id = item.Id,
+                                                           RegistrationDate = item.RegistrationDate.Ticks - sTime.Ticks,
+                                                           RegistrationTime = item.RegistrationTime.Ticks,
+                                                           ReceivingDate = item.ReceivingDate.Ticks - sTime.Ticks,
+                                                           ReceivingTime = item.ReceivingTime.Ticks,
+                                                           Content = (from content in item.OrderIncludeProductVariety 
+                                                                      select new Models.Http.Send.OrderContentItem()
+                                                                      {
+                                                                          IdProduct = content.ProductVariety.IdProduct,
+                                                                          IdVariety = content.ProductVariety.Id,
+                                                                          Amount = content.Amount
+                                                                      }).ToList(),
+                                                           Delivery = item.Delivery != null? item.Delivery.First().DeliveryAddress.City.Name + " " +
+                                                                                                    item.Delivery.First().DeliveryAddress.Street.Name + " " +
+                                                                                                    item.Delivery.First().DeliveryAddress.Number :
+                                                                                                    "",
+                                                           IdReceivingMethod = item.IdReceivingMethod,
+                                                           IdBuilding = item.IdBuilding,
+                                                           TotalPrice = (double)item.TotalPrice,
+                                                           IdDiscount = _context.Discount.First().Id,
+                                                           IdStatus = item.IdStatus
+                                                       }).ToListAsync();
+
+            List<object> data = new List<object>();
+            data.Add(receiving);
+            data.Add(discount);
+            data.Add(status);
+            data.Add(order);
+            return data;
         }
 
         [Authorize]
@@ -152,6 +209,21 @@ namespace Api.Controllers
                     };
 
                     _context.Order.Add(order);
+
+                    order.OrderIncludeProductVariety = new List<Models.Entity.OrderIncludeProductVariety>();
+
+                    int iterator = 0;
+                    foreach (string item in Data.Split('_'))
+                    {
+                        order.OrderIncludeProductVariety.Add(new Models.Entity.OrderIncludeProductVariety()
+                        {
+                            IdOrder = order.Id,
+                            IdProductVariety = data.A.ElementAt(iterator),
+                            Amount = data.B.ElementAt(iterator++),
+                            IsDeleted = false
+                        });
+                    }
+
                     _context.SaveChangesAsync();
 
                     return true;
@@ -177,9 +249,9 @@ namespace Api.Controllers
 
        /* [AllowAnonymous]
         [HttpPost("food/categories")]
-        public async Task<ActionResult<IEnumerable<Models.Http.Category>>> GetCategoriesData()
+        public async Task<ActionResult<IEnumerable<Models.Http.Send.Category>>> GetCategoriesData()
         {
-            List<Models.Http.Category> categories = await (from item in _context.Category select new Models.Http.Category()
+            List<Models.Http.Send.Category> categories = await (from item in _context.Category select new Models.Http.Send.Category()
             {
                 Id = item.Id,
                 Name = item.Name,
@@ -189,10 +261,10 @@ namespace Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("food/sets")]
-        public async Task<ActionResult<IEnumerable<Models.Http.Set>>> GetSetData()
+        public async Task<ActionResult<IEnumerable<Models.Http.Send.Set>>> GetSetData()
         {
-            List<Models.Http.Set> sets = await (from item in _context.Set
-                                                select new Models.Http.Set()
+            List<Models.Http.Send.Set> sets = await (from item in _context.Set
+                                                select new Models.Http.Send.Set()
                                                 {
                                                     Id = item.Id,
                                                     Name = item.Name,
@@ -206,31 +278,31 @@ namespace Api.Controllers
 
         [Authorize]
         [HttpPost("get:orderListByUserId={IdUser}")]
-        public async Task<ActionResult<IEnumerable<Models.Http.Order>>> GetOrderList(long IdUser)
+        public async Task<ActionResult<IEnumerable<Models.Http.Send.Order>>> GetOrderList(long IdUser)
         {
-            return null;//Models.HttpGetModels.Order.GetFromDatabaseByUserId(_context, IdUser);
+            return null;//Models.Http.SendGetModels.Order.GetFromDatabaseByUserId(_context, IdUser);
         }
 
-        //[AllowAnonymous]
-        [Authorize]
-        [HttpGet("get:orderData={IdOrder}")]
-        public async Task<Models.Http.Order> GetOrderItem(int IdOrder)
-        {
-            Models.Http.Order order = (from item in _context.Order where item.Id == IdOrder select new Models.Http.Order()
-            {
-                Id = item.Id,
-                RegistrationDate = (long)item.RegistrationDate.Date.Subtract(new DateTime(1970, 1, 1)).TotalSeconds * 1000,
-                RegistrationTime = item.RegistrationTime.Ticks,
-                ReceivingDate = item.ReceivingDate.Date.Ticks,
-                ReceivingTime = item.ReceivingTime.Ticks,
-                ReceivingMethod = item.ReceivingMethod.Name,
-                Address = item.IdBuilding.ToString(),
-                DeliveryAddress = item.IdBuilding.ToString(),
-                TotalPrice = Convert.ToDouble(item.TotalPrice),
-                Status = item.OrderStatus.Name
-            }).FirstOrDefault();
+        ////[AllowAnonymous]
+        //[Authorize]
+        //[HttpGet("get:orderData={IdOrder}")]
+        //public async Task<Models.Http.Send.Order> GetOrderItem(int IdOrder)
+        //{
+        //    Models.Http.Send.Order order = (from item in _context.Order where item.Id == IdOrder select new Models.Http.Send.Order()
+        //    {
+        //        Id = item.Id,
+        //        RegistrationDate = (long)item.RegistrationDate.Date.Subtract(new DateTime(1970, 1, 1)).TotalSeconds * 1000,
+        //        RegistrationTime = item.RegistrationTime.Ticks,
+        //        ReceivingDate = item.ReceivingDate.Date.Ticks,
+        //        ReceivingTime = item.ReceivingTime.Ticks,
+        //        ReceivingMethod = item.ReceivingMethod.Name,
+        //        Address = item.IdBuilding.ToString(),
+        //        DeliveryAddress = item.IdBuilding.ToString(),
+        //        TotalPrice = Convert.ToDouble(item.TotalPrice),
+        //        Status = item.OrderStatus.Name
+        //    }).FirstOrDefault();
 
-            return order;
-        }
+        //    return order;
+        //}
     }
 }

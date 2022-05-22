@@ -71,12 +71,12 @@ namespace Api.Controllers
         /// <returns>Authenticated user data</returns>
         [Authorize]
         [HttpPost("authorize")]
-        async public Task<ActionResult<Models.Http.User>> Authorize()
+        async public Task<ActionResult<Models.Http.Send.User>> Authorize()
         {
-            Models.Http.User user = await Task.Run(() =>
+            Models.Http.Send.User user = await Task.Run(() =>
             {
                 string login = GetLoginFromJWT(Request);
-                Models.Http.User user = (from item in _context.User where item.Login.Equals(login) select Models.Http.User.GetInstance(item)).FirstOrDefault();
+                Models.Http.Send.User user = (from item in _context.User where item.Login.Equals(login) select Models.Http.Send.User.GetInstance(item)).FirstOrDefault();
                 return user;
             });
             if (user == null)
