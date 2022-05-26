@@ -131,14 +131,18 @@ namespace Api.Controllers
 
         private ClaimsIdentity GetIdentity(string Login, string Password)
         {
+            if (Login == null || Password == null)
+                return null;
+
             string encryptedPassword = PasswordCryptograph.Encrypt(Password);
 
-            var user = (from item in _context.User where item.Login.Equals(Login) && item.Password.Equals(encryptedPassword) select
-                                new {
+            var user = (from item in _context.User 
+                        where item.Login.Equals(Login) && item.Password.Equals(encryptedPassword)
+                        select new {
                                     Login = item.Login,
                                     Role = item.Role.Name
                                 }).FirstOrDefault();
-            if(user != null)
+            if (user != null)
             {
                 var claims = new List<Claim>
                 {
@@ -152,7 +156,7 @@ namespace Api.Controllers
             }
 
             return null;
-        }  
+        }
 
         private ClaimsIdentity GetIdentityByRefreshJWT()
         {
