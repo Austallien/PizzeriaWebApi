@@ -1,9 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
-using System.Text.Json;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace Api.Models
 {

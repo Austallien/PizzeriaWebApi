@@ -22,25 +22,6 @@ namespace Api.Controllers
             _context = context;
         }
 
-        [AllowAnonymous]
-        [HttpGet("asd:login={login}&password={password}")]
-        public IActionResult asd(string login, string password)
-        {
-            Models.Entity.User user = _context.User.FirstOrDefault(item => item.Login.Equals(login));
-          /* foreach(var item in _context.User)
-            {
-                item.Password = PasswordCryptograph.Encrypt(item.Password);
-            }
-            _context.SaveChanges();*/
-            string asd = PasswordCryptograph.Encrypt(user.Password);
-            return Content(password + "\n" 
-                + asd + "\n" 
-                + user.Password + "\n"
-                + PasswordCryptograph.Validate(password, user.Password));
-
-            //return PasswordCryptograph.Validate(password, user.Password);
-        }
-
         /// <summary>
         /// Authenticate user which try to sign in
         /// </summary>
@@ -84,13 +65,6 @@ namespace Api.Controllers
             return user;
         }
 
-        [Authorize]
-        [HttpPost("data")]
-        async public Task<IActionResult> Data()
-        {
-            return Content("NotImplementedMethod");
-        }
-
         /// <summary>
         /// Refreshes access JWT if the refresh token is valid
         /// </summary>
@@ -114,19 +88,43 @@ namespace Api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("register")]
+        [HttpPost("register:firstName={FirstName}&middleName={MiddleName}&lastName={LastName}&phoneNumber={PhoneNumber}&login={Login}&password={Password}")]
         async public Task<ActionResult<bool>> Register(string FirstName, string MiddleName, string LastName, string PhoneNumber, string Login, string Password)
         {
-            await _context.User.AddAsync(new Models.Entity.User()
+            bool _result = await Task<bool>.Run(() =>
             {
-                FirstName = FirstName,
-                MiddleName = MiddleName,
-                LastName = LastName,
-                PhoneNumber = PhoneNumber,
-                Login = Login,
-                Password = PasswordCryptograph.Encrypt(Password)
+                try
+                {
+                    var user = _context.User.Add(new Models.Entity.User()
+                    {
+                        FirstName = FirstName,
+                        MiddleName = MiddleName,
+                        LastName = LastName,
+                        PhoneNumber = PhoneNumber,
+                        IdRole = 2004, //Client
+                        Login = Login,
+                        Password = PasswordCryptograph.Encrypt(Password),
+                        IsDeleted = false
+                    });
+
+                    var client = _context.Client.Add(new Models.Entity.Client()
+                    {
+                        IdUser = user.Entity.Id,
+                        IdDiscount = 1,
+                        IsDeleted = false
+                    });
+
+                    _context.SaveChanges();
+
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    return false;
+                }
             });
-            return true;
+
+            return _result;
         }
 
         private ClaimsIdentity GetIdentity(string Login, string Password)

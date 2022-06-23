@@ -12,21 +12,10 @@ namespace Api.Models
             Decrypt
         }
 
-        private static readonly string publicKey = "";
-
         public static string Encrypt(string Password)
         {
             string encryptedPasword = Cryptor(Mode.Encrypt, Password);
             return encryptedPasword;
-        }
-
-        public static bool Validate(string Password, string EncryptedPassword)
-        {
-            string userSidePassword = Encrypt(Password);
-            string serverSidePassword = EncryptedPassword;
-
-            bool result = String.Equals(userSidePassword, serverSidePassword);
-            return result;
         }
 
         private static string Cryptor(Mode Mode, string Password)

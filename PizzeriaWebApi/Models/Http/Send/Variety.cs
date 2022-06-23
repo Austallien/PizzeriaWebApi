@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using System.IO;
-
 namespace Api.Models.Http.Send
 {
     public class Variety

@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Api.Models;
-using System.IO;
-using System.Reflection;
 
 namespace Api.Controllers
 {
@@ -18,6 +14,7 @@ namespace Api.Controllers
     public class DataController : ControllerBase
     {
         private readonly Models.Entity.Context _context;
+       
 
         public DataController(Models.Entity.Context context)
         {
@@ -238,7 +235,7 @@ namespace Api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("image&name={Name}"),HttpPost("image&name={Name}")]
+        [HttpGet("image:name={Name}"),HttpPost("image:name={Name}")]
         public async Task<ActionResult> Image(string Name)
         {
             string path = Environment.CurrentDirectory + "\\content\\image\\";
@@ -274,13 +271,6 @@ namespace Api.Controllers
                                                                 select set.IdProductVariety).ToList()
                                                 }).ToListAsync();
             return sets;
-        }
-
-        [Authorize]
-        [HttpPost("get:orderListByUserId={IdUser}")]
-        public async Task<ActionResult<IEnumerable<Models.Http.Send.Order>>> GetOrderList(long IdUser)
-        {
-            return null;//Models.Http.SendGetModels.Order.GetFromDatabaseByUserId(_context, IdUser);
         }
 
         ////[AllowAnonymous]

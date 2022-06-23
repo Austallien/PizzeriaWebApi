@@ -1,5 +1,3 @@
-using System;
-
 namespace Api.Models.Http.Send
 {
     public class Client

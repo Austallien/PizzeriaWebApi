@@ -1,20 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Models.Http.Building.Send
 {
     class Order
     {
-        public int Id;
-        public long RegistrationDate;
-        public long RegistrationTime;
-        public long ReceivingDate;
-        public long ReceivingTime;
-        public double Total;
-        public int IdStatus;
-        public int IdReceiving;
+        public int Id { get; set; }
+        public DateTime RegistrationDate { get; set; }
+        public string RegistrationTime { get; set; }
+        public DateTime ReceivingDate { get; set; }
+        public string ReceivingTime { get; set; }
+        public double Total { get; set; }
+        public int IdStatus { get; set; }
+        public int IdReceiving { get; set; }
+        public List<Http.Send.Product> Products { get; set; }
+        public List<Operation> Operations { get; set; }
     }
 }

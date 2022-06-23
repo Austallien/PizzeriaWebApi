@@ -25,7 +25,7 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<Api.Models.Entity.Context>(options =>
+            services.AddDbContext<Models.Entity.Context>(options =>
                 options.UseSqlServer("data source=DESKTOP-QQO9PIU\\SQLEXPRESS;initial catalog=Pizzeria;integrated security=True;")
             );
 
